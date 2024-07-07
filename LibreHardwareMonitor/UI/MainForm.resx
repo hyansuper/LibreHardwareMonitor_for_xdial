@@ -386,4 +386,69 @@
         AAD///////8AAP///////wAA////////AAA=
 </value>
   </data>
+
+<data name="fileMenuItem.Text"><value>File</value></data>
+<data name="menuItem5.Text"><value>Hardware</value></data>
+<data name="mainboardMenuItem.Text"><value>Motherboard</value></data>
+<data name="cpuMenuItem.Text"><value>CPU</value></data>
+<data name="ramMenuItem.Text"><value>RAM</value></data>
+<data name="gpuMenuItem.Text"><value>GPU</value></data>
+<data name="fanControllerMenuItem.Text"><value>Fan Controllers</value></data>
+<data name="hddMenuItem.Text"><value>Storage Devices</value></data>
+<data name="nicMenuItem.Text"><value>Network</value></data>
+<data name="psuMenuItem.Text"><value>Power Supplies</value></data>
+<data name="batteryMenuItem.Text"><value>Batteries</value></data>
+
+<data name="optionsMenuItem.Text"><value>Options</value></data>
+<data name="updateIntervalMenuItem.Text"><value>Update Interval</value></data>
+<data name="startMinMenuItem.Text"><value>Start Minimized</value></data>
+<data name="minTrayMenuItem.Text"><value>Minimize To Tray</value></data>
+<data name="minCloseMenuItem.Text"><value>Minimize On Close</value></data>
+<data name="startupMenuItem.Text"><value>Run On Windows Startup</value></data>
+
+<data name="temperatureUnitsMenuItem.Text"><value>Temperature Unit</value></data>
+<data name="celsiusMenuItem.Text"><value>Celsius</value></data>
+<data name="fahrenheitMenuItem.Text"><value>Fahrenheit</value></data>
+
+<data name="copied to clipboard." xml:space="preserve">
+    <value>copied to clipboard.</value>
+  </data>
+  <data name="Sensor ID" xml:space="preserve">
+    <value>Sensor ID</value>
+  </data>
+  <data name="Copy Sensor ID" xml:space="preserve">
+    <value>Copy Sensor ID</value>
+  </data>
+<data name="sensorId.Header" xml:space="preserve">
+    <value>Sensor ID</value>
+  </data>
+  <data name="sensor.Header" xml:space="preserve">
+    <value>Sensor</value>
+  </data>
+  <data name="sensorIdMenuItem.Text" xml:space="preserve">
+    <value>Sensor ID</value>
+  </data>
+<data name="xdialMenuItem.Text" xml:space="preserve">
+    <value>xDial Perfmon</value>
+  </data>
+  <data name="configXdialPerfmonClientMenuItem.Text" xml:space="preserve">
+    <value>Config</value>
+  </data>
+  <data name="runXdialPerfmonClientMenuItem.Text" xml:space="preserve">
+    <value>Run</value>
+  </data>
+
+
+  <data name="xdial.ex.wrong_uri" xml:space="preserve">
+    <value>The IP address specified in xDial configuration may be wrong</value>
+  </data>
+  <data name="xdial.ex.invalid_uri" xml:space="preserve">
+    <value>The IP address specified in xDial configuration is invalid</value>
+  </data>
+  <data name="xdial.ex.version_too_old" xml:space="preserve">
+    <value>Please update this software to latest version.</value>
+  </data>
+  <data name="xdial.msgbox.error" xml:space="preserve">
+    <value>Error</value>
+  </data>
 </root>

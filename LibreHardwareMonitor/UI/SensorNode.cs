@@ -110,6 +110,10 @@ public class SensorNode : Node
         }
     }
 
+    public string SensorId
+    {
+        get {return Sensor.Identifier.ToString();}
+    }
     public string Max
     {
         get { return ValueToString(Sensor.Max); }

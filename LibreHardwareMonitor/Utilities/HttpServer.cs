@@ -155,7 +155,7 @@ public class HttpServer
         return dict;
     }
 
-    public SensorNode FindSensor(Node node, string id)
+    public static SensorNode FindSensor(Node node, string id)
     {
         if (node is SensorNode sNode)
         {

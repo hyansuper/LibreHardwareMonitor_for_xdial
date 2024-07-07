@@ -21,6 +21,8 @@ namespace LibreHardwareMonitor.UI;
 
 public sealed partial class MainForm : Form
 {
+    private readonly UserOption _runXdialPerfmonClient;
+
     private readonly UserOption _autoStart;
     private readonly Computer _computer;
     private readonly SensorGadget _gadget;
@@ -64,6 +66,7 @@ public sealed partial class MainForm : Form
     {
         InitializeComponent();
 
+
         _settings = new PersistentSettings();
         _settings.Load(Path.ChangeExtension(Application.ExecutablePath, ".config"));
 
@@ -96,6 +99,7 @@ public sealed partial class MainForm : Form
         nodeTextBoxValue.DrawText += NodeTextBoxText_DrawText;
         nodeTextBoxMin.DrawText += NodeTextBoxText_DrawText;
         nodeTextBoxMax.DrawText += NodeTextBoxText_DrawText;
+        nodeTextBoxSensorId.DrawText += NodeTextBoxText_DrawText;
         nodeTextBoxText.EditorShowing += NodeTextBoxText_EditorShowing;
 
         foreach (TreeColumn column in treeView.Columns)
@@ -167,14 +171,17 @@ public sealed partial class MainForm : Form
         UserOption showHiddenSensors = new("hiddenMenuItem", false, hiddenMenuItem, _settings);
         showHiddenSensors.Changed += delegate { treeModel.ForceVisible = showHiddenSensors.Value; };
 
+        UserOption showSensorId = new("sensorIdMenuItem", false, sensorIdMenuItem, _settings);
+        showSensorId.Changed += delegate {treeView.Columns[1].IsVisible = showSensorId.Value; };
+
         UserOption showValue = new("valueMenuItem", true, valueMenuItem, _settings);
-        showValue.Changed += delegate { treeView.Columns[1].IsVisible = showValue.Value; };
+        showValue.Changed += delegate { treeView.Columns[2].IsVisible = showValue.Value; };
 
         UserOption showMin = new("minMenuItem", false, minMenuItem, _settings);
-        showMin.Changed += delegate { treeView.Columns[2].IsVisible = showMin.Value; };
+        showMin.Changed += delegate { treeView.Columns[3].IsVisible = showMin.Value; };
 
-        UserOption showMax = new("maxMenuItem", true, maxMenuItem, _settings);
-        showMax.Changed += delegate { treeView.Columns[3].IsVisible = showMax.Value; };
+        UserOption showMax = new("maxMenuItem", false, maxMenuItem, _settings);
+        showMax.Changed += delegate { treeView.Columns[4].IsVisible = showMax.Value; };
 
         var _ = new UserOption("startMinMenuItem", false, startMinMenuItem, _settings);
         _minimizeToTray = new UserOption("minTrayMenuItem", true, minTrayMenuItem, _settings);
@@ -258,6 +265,31 @@ public sealed partial class MainForm : Form
                 Server.StopHttpListener();
         };
 
+        XdialClient = new XdialPerfmonClient();
+        _runXdialPerfmonClient = new UserOption("xdial.run", false, runXdialPerfmonClientMenuItem, _settings);
+        _runXdialPerfmonClient.Changed += async (sender, e)=>
+        {
+            if (_runXdialPerfmonClient.Value)
+            {
+                XdialClient.ResetSensors(_root, _settings);
+                XdialClient.ServerIP = _settings.GetValue("xdial.ip", "");
+                try
+                {
+                    await XdialClient.StartWebSocket();
+                }
+                catch (XdialException ex) {
+                    System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+                    MessageBox.Show(resources.GetString(ex.Message), resources.GetString("xdial.msgbox.error"), MessageBoxButtons.OK);
+                }
+            }
+            else 
+            {
+                await XdialClient.StopWebSocket();
+            }
+        };
+
+
+
         authWebServerMenuItem.Checked = _settings.GetValue("authenticationEnabled", false);
 
         _logSensors = new UserOption("logSensorsMenuItem", false, logSensorsMenuItem, _settings);
@@ -329,7 +361,7 @@ public sealed partial class MainForm : Form
         };
 
         _updateInterval = new UserRadioGroup("updateIntervalMenuItem",
-                                             2,
+                                             3,
                                              new[]
                                              {
                                                  updateInterval250msMenuItem,
@@ -364,6 +396,7 @@ public sealed partial class MainForm : Form
                     timer.Interval = 10000;
                     break;
             }
+            XdialClient.Interval = timer.Interval;
         };
 
         _sensorValuesTimeWindow = new UserRadioGroup("sensorValuesTimeWindow",
@@ -466,6 +499,7 @@ public sealed partial class MainForm : Form
     }
 
     public HttpServer Server { get; }
+    public XdialPerfmonClient XdialClient {get;}
 
     private void BackgroundUpdater_DoWork(object sender, DoWorkEventArgs e)
     {
@@ -866,6 +900,7 @@ public sealed partial class MainForm : Form
         SaveConfiguration();
         if (_runWebServer.Value)
             Server.Quit();
+        XdialClient.StopWebSocket();
 
         _systemTray.Dispose();
         timer.Dispose();
@@ -903,9 +938,22 @@ public sealed partial class MainForm : Form
         treeView.SelectedNode = info.Node;
         if (info.Node != null)
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            
             if (info.Node.Tag is SensorNode node && node.Sensor != null)
             {
-                treeContextMenu.Items.Clear();
+                treeContextMenu.Items.Clear(); 
+                {
+                    ToolStripItem item = new ToolStripMenuItem(resources.GetString("Copy Sensor ID"));
+                    item.Click += delegate 
+                    {
+                        Clipboard.SetText(node.Sensor.Identifier.ToString());
+                        MessageBox.Show($"{node.Sensor.Identifier.ToString()} "+ resources.GetString("copied to clipboard."), resources.GetString("Sensor ID"), MessageBoxButtons.OK);
+                    };
+                    treeContextMenu.Items.Add(item);
+                }
+                
+                treeContextMenu.Items.Add(new ToolStripSeparator());
                 if (node.Sensor.Parameters.Count > 0)
                 {
                     ToolStripItem item = new ToolStripMenuItem("Parameters...");
@@ -1171,5 +1219,10 @@ public sealed partial class MainForm : Form
     private void AuthWebServerMenuItem_Click(object sender, EventArgs e)
     {
         new AuthForm(this).ShowDialog();
+    }
+
+    private void ConfigXdialPerfmonClientMenuItem_Click(object sender, EventArgs e)
+    {
+        new XdialConfigForm(this, _settings).Show();
     }
 }
